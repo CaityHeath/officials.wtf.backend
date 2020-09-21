@@ -8,8 +8,15 @@ require('dotenv').config();
 
 const PORT = process.env.PORT;
 const app = express();
-
 app.use(cors());
+app.use((req, res, next) => {
+  res.setHeader("Access-Control-Allow-Origin", "*");
+  res.header(
+    "Access-Control-Allow-Headers",
+    "Origin, X-Requested-With, Content-Type, Accept"
+  );
+  next();
+});
 
 app.get('/findreps', getReps);
 
@@ -23,10 +30,10 @@ function getReps(request, response){
 
 function filterResults(data){
   let reps = []
+  console.log(data)
   data.offices.forEach((office, idx) => {
     reps.push(new Reps(office))
   });
-  
   reps.forEach(rep => {
       rep.indices.forEach(index => {
         if (rep.level === 'country'){
@@ -46,7 +53,9 @@ function filterResults(data){
     return {
       fed: feds,
       state: states,
-      county: counties
+      county: counties,
+      address: data.normalizedInput,
+      divisions: data.divisions
     }
   }
 
